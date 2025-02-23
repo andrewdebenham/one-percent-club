@@ -3,8 +3,15 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 
 const HabitsList = ({ habits }) => {
 
+    const Checkbox = ({ isChecked }) => (
+        <TouchableOpacity style={styles.checkboxContainer}>
+            <View style={[styles.checkbox, isChecked && styles.checked]}/>
+        </TouchableOpacity>
+    )
+
     const renderHabit = ({ item }) => (
         <View style={styles.habitContainer}>
+            <Checkbox isChecked={item.is_complete}/>
             <Text>{item.habit_name}</Text>
         </View>
     )
@@ -37,7 +44,23 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         elevation: 2,
     },
-
+    checkboxContainer: {
+        width: 24,
+        height: 24,
+        borderWidth: 2,
+        borderRadius: 4,
+        borderColor: 'blue',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    checkbox: {
+        width: 16,
+        height: 16,
+    },
+    checkedCheckbox: {
+        backgroundColor: 'blue',
+    },
 })
 
 export default HabitsList;
