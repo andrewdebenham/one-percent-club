@@ -13,6 +13,9 @@ const logger = require('morgan');
 
 const usersRouter = require('./routes/users');
 const habitsRouter = require('./routes/habits');
+const completionsRouter = require('./routes/completions');
+
+require('./jobs/cronJobs');
 
 app.use(helmet());
 app.use(logger('dev'));
@@ -33,8 +36,8 @@ app.use((err, req, res, next) => {
 
 app.use('/users', usersRouter);
 app.use('/habits', habitsRouter);
+app.use('/completions', completionsRouter);
 
 app.listen(3000, () => {
     console.log('The express app is ready.');
 });
-

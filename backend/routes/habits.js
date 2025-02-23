@@ -51,7 +51,7 @@ router.get('/', async (req, res) => {
     console.log("Received request for habits. Date param:", req.params.date);
     console.log("Full request URL:", req.originalUrl);
     console.log("Full request headers:", req.headers);
-    
+
     const date = req.query.date;
     if (!date) {
         return res.status(400).json({
@@ -64,13 +64,26 @@ router.get('/', async (req, res) => {
         console.log("User Id: ", req.user.userId);
         const userId = req.user.userId;
 
-        const habits = await req.db.from('habits')
-            .where('user_id', userId)
-            .andWhere('start_date', '<=', date) // Habit started on or before the given date
-            .andWhere(function () {
-                this.where('end_date', '>', date).orWhereNull('end_date'); // Habit end_date is after the given date
+        const habits = await req.db
+            .from('habits as h')
+            .leftJoin('habit_completion as hc', function () {
+                this.on('h.habit_id', '=', 'hc.habit_id')
+                    .andOn('hc.completion_date', '=', req.db.raw('?', [date])); // Match only the given date
             })
-            .select('*')
+            .where('h.user_id', userId)
+            .andWhere('h.start_date', '<=', date) // Habit started on or before the given date
+            .andWhere(function () {
+                this.where('h.end_date', '>', date).orWhereNull('h.end_date'); // Habit end_date is after the given date
+            })
+            .select(
+                'h.habit_id',
+                'h.habit_name',
+                'h.start_date',
+                'h.end_date',
+                'hc.completion_id',
+                'hc.completion_date',
+                'hc.is_complete'
+            );
 
         return res.status(200).json({
             error: false,
@@ -84,5 +97,7 @@ router.get('/', async (req, res) => {
         });
     }
 });
+
+
 
 module.exports = router;
